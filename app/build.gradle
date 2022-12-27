@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'com.starter.easylauncher'
 }
 
 android {
@@ -25,6 +26,11 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            debuggable true
+        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -33,6 +39,68 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+}
+
+easylauncher {
+    defaultFlavorNaming true // Use flavor name for default ribbon, instead of the type name
+
+    productFlavors {
+        local {}
+        qa {
+            // Add one more filter to all `qa` variants
+            filters = redRibbonFilter()
+        }
+        staging {
+            filters = [
+                    customColorRibbonFilter("custom", "#6600CC", "#FFFFFF", "bottom", 0.17)
+            ]
+        }
+        production {}
+
+        aaa {
+            filters = customRibbon(
+                    label: "aaa",
+                    ribbonColor: "#6600CC",
+                    labelColor: "#FFFFFF",
+                    position: "topRight",
+                    drawingOptions: ["IgnoreTransparentPixels", "AddExtraPadding"],
+            )
+        }
+        bbb {
+            filters = customColorRibbonFilter("bbb", "#EEEEEE", "#FF00FF", "bottom")
+        }
+    }
+
+    buildTypes {
+        debug {
+            // Add two more filters to all `beta` variants
+            filters = [
+                    customRibbon(ribbonColor: "#6600CC", position: "topRight", label: "UAT")
+            ]
+        }
+        canary {
+            // Remove ALL filters to `canary` variants
+            enable false
+        }
+        release {}
+    }
+
+    /*variants {
+        debug {
+            // OVERRIDE all previous filters defined for `productionAADebug` variant
+            filters = orangeRibbonFilter("custom")
+        }
+        localBbbCanary {
+            filters = chromeLike(label: "api<26", ribbonColor: "#0B3954", labelColor: "#FF6663")
+        }
+        localAaaDebug {
+            filters = [
+                    customRibbon(label: "local"),
+                    chromeLike(label: "aaa"),
+                    overlayFilter(file("launcherOverlay/beta.png")),
+            ]
+        }
+    }*/
 }
 
 dependencies {
